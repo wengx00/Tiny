@@ -3,6 +3,7 @@
 #include "analyze.h"
 #include "QMessageBox"
 #include "ui_dialog.h"
+#include "QDir"
 
 Dialog::Dialog(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog) {
   ui->setupUi(this);
@@ -49,6 +50,8 @@ void Dialog::on_saveFile_clicked() {
 }
 
 void Dialog::on_analyze_clicked() {
+  QString sourcePath = QDir::tempPath() + "/TinySourceCode";
+  QString resPath = QDir::tempPath() + "/TinyResult";
   QFile source(sourcePath);
   if (!source.open(QIODevice::WriteOnly)) {
     QMessageBox::information(this, "提示", "缺失文件访问权限");
@@ -57,7 +60,7 @@ void Dialog::on_analyze_clicked() {
   source.write(ui->source->toPlainText().toUtf8());
   source.close();
 
-  analyzeCode();
+  analyzeCode(sourcePath.toStdString().c_str(), resPath.toStdString().c_str());
 
   QFile result(resPath);
   if (!result.open(QIODevice::ReadWrite)) {
@@ -65,7 +68,9 @@ void Dialog::on_analyze_clicked() {
     return;
   }
   ui->result->setText(result.readAll());
+  result.close();
   QMessageBox::information(this, "提示", "解析成功");
-  // 删除结果文件
+  // 删除临时文件
+  source.remove();
   result.remove();
 }
