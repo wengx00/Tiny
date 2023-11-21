@@ -15,19 +15,26 @@
 void printToken( TokenType token, const char* tokenString )
 { switch (token)
   { case IF:
-//    case THEN:
     case ELSE:
-//    case END:
     case REPEAT:
     case UNTIL:
     case READ:
+    case FOR:
+    case TO:
+    case DOWNTO:
+    case ENDDO:
+    case DO:
     case WRITE:
       fprintf(listing,
          "reserved word: %s\n",tokenString);
       break;
     case ASSIGN: fprintf(listing,":=\n"); break;
     case LT: fprintf(listing,"<\n"); break;
+    case LTE: fprintf(listing,"<=\n"); break;
+    case GT: fprintf(listing,">\n"); break;
+    case GTE: fprintf(listing,">=\n"); break;
     case EQ: fprintf(listing,"=\n"); break;
+    case NEQ: fprintf(listing,"<>\n"); break;
     case LPAREN: fprintf(listing,"(\n"); break;
     case RPAREN: fprintf(listing,")\n"); break;
     case SEMI: fprintf(listing,";\n"); break;
@@ -35,6 +42,9 @@ void printToken( TokenType token, const char* tokenString )
     case MINUS: fprintf(listing,"-\n"); break;
     case TIMES: fprintf(listing,"*\n"); break;
     case OVER: fprintf(listing,"/\n"); break;
+    case PLUS_EQ: fprintf(listing, "+=\n"); break;
+    case REMAIN: fprintf(listing, "%%\n"); break;
+    case POWER: fprintf(listing, "^\n"); break;
     case ENDFILE: fprintf(listing,"EOF\n"); break;
     case NUM:
       fprintf(listing,
@@ -145,6 +155,12 @@ void printTree( TreeNode * tree )
           break;
         case WriteK:
           fprintf(listing,"Write\n");
+          break;
+        case ForK:
+          fprintf(listing, "For: %s\n", tree->attr.name);
+          break;
+        case PlusEqK:
+          fprintf(listing, "PlusEqual: %s\n", tree->attr.name);
           break;
         default:
           fprintf(listing,"Unknown ExpNode kind\n");

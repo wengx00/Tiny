@@ -22,31 +22,38 @@
 #endif
 
 /* MAXRESERVED = the number of reserved words */
-#define MAXRESERVED 6
+#define MAXRESERVED 11
 
 typedef enum 
     /* book-keeping tokens */
    {ENDFILE,ERROR,
     /* reserved words */
-    IF,ELSE,REPEAT,UNTIL,READ,WRITE,
+    IF,ELSE,REPEAT,UNTIL,READ,WRITE,FOR,TO,DOWNTO,DO,ENDDO,
     /* multicharacter tokens */
     ID,NUM,
     /* special symbols */
-    ASSIGN,EQ,LT,PLUS,MINUS,TIMES,OVER,LPAREN,RPAREN,SEMI
+    ASSIGN,EQ,LT,PLUS,MINUS,TIMES,OVER,LPAREN,RPAREN,SEMI,
+    /* 扩展的运算符 */
+    PLUS_EQ,REMAIN,POWER,
+    /* 扩展的比较符*/
+    GT,LTE,GTE,NEQ,
    } TokenType;
 
+
+int lineno;
+int linepos;
 extern FILE* source; /* source code text file */
 extern FILE* listing; /* listing output text file */
 extern FILE* code; /* code text file for TM simulator */
 
-extern int lineno; /* source line number for listing */
+extern void reset();
 
 /**************************************************/
 /***********   Syntax tree for parsing ************/
 /**************************************************/
 
 typedef enum {StmtK,ExpK} NodeKind;
-typedef enum {IfK,RepeatK,AssignK,ReadK,WriteK} StmtKind;
+typedef enum {IfK,RepeatK,AssignK,ReadK,WriteK,ForK,PlusEqK} StmtKind;
 typedef enum {OpK,ConstK,IdK} ExpKind;
 
 /* ExpType is used for type checking */

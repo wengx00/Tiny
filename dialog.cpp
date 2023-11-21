@@ -1,9 +1,11 @@
 #include "dialog.h"
-#include "QFileDialog"
-#include "analyze.h"
-#include "QMessageBox"
-#include "ui_dialog.h"
+#include "QDebug"
 #include "QDir"
+#include "QFileDialog"
+#include "QMessageBox"
+#include "QTextStream"
+#include "analyze.h"
+#include "ui_dialog.h"
 
 Dialog::Dialog(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog) {
   ui->setupUi(this);
@@ -38,13 +40,14 @@ void Dialog::on_saveFile_clicked() {
   if (savePath.isEmpty())
     return;
   QFile file(savePath);
-  if (!file.open(QIODevice::ReadWrite)) {
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
     QMessageBox::information(this, "提示", "文件保存失败");
     return;
   }
   // 写文件
-  QString content = "";
-  file.write(content.toUtf8());
+  QString content = ui->source->toPlainText().toUtf8();
+  QTextStream out(&file);
+  out << content << '\n';
   file.close();
   QMessageBox::information(this, "提示", "文件保存成功");
 }
@@ -53,11 +56,14 @@ void Dialog::on_analyze_clicked() {
   QString sourcePath = QDir::tempPath() + "/TinySourceCode";
   QString resPath = QDir::tempPath() + "/TinyResult";
   QFile source(sourcePath);
-  if (!source.open(QIODevice::WriteOnly)) {
+  if (!source.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
     QMessageBox::information(this, "提示", "缺失文件访问权限");
     return;
   }
-  source.write(ui->source->toPlainText().toUtf8());
+  qDebug() << "分析源程序：" << ui->source->toPlainText() << '\n' << "临时文件: " << sourcePath << '\n' ;
+
+  QTextStream out(&source);
+  out << ui->source->toPlainText().toUtf8();
   source.close();
 
   analyzeCode(sourcePath.toStdString().c_str(), resPath.toStdString().c_str());
@@ -71,6 +77,6 @@ void Dialog::on_analyze_clicked() {
   result.close();
   QMessageBox::information(this, "提示", "解析成功");
   // 删除临时文件
-  source.remove();
-  result.remove();
+  QFile::remove(sourcePath);
+  QFile::remove(resPath);
 }

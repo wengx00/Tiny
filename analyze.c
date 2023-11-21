@@ -3,8 +3,6 @@
 #include <stdio.h>
 
 /* allocate global variables */
-int lineno = 0;
-
 FILE *source;
 FILE *listing;
 FILE *code;
@@ -17,13 +15,14 @@ int TraceParse = TRUE;
 int Error = FALSE;
 
 void analyzeCode(const char *sourcePath, const char *resPath) {
-  TreeNode *syntaxTree;
-  source = fopen(sourcePath, "r");
-  listing = fopen(resPath, "w"); /* send listing to screen */
-//  listing = stdout;
-  if (source == NULL) {
-    fprintf(stderr, "File %s not found\n", sourcePath);
-    exit(1);
+    reset();
+    TreeNode *syntaxTree;
+    source = fopen(sourcePath, "r");
+    listing = fopen(resPath, "w"); /* send listing to screen */
+                                   //  listing = stdout;
+    if (source == NULL) {
+      fprintf(stderr, "File %s not found\n", sourcePath);
+      exit(1);
   }
 //  fprintf(listing, "\nTINY COMPILATION: %s\n", sourcePath);
   syntaxTree = parse();
