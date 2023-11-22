@@ -279,7 +279,7 @@ TreeNode *not_term(void) {
       if (t != NULL) {
         t->attr.op = token;
         match(token);
-        t->child[0] = power();
+        t->child[0] = not_term();
       }
     }
   } else {
