@@ -9,7 +9,16 @@
 #include "util.h"
 
 /* states in scanner DFA */
-typedef enum { START, INASSIGN, INCOMMENT, INNUM, INID, DONE, INCOMPUTE, INCOMPARE } StateType;
+typedef enum {
+  START,
+  INASSIGN,
+  INCOMMENT,
+  INNUM,
+  INID,
+  DONE,
+  INCOMPUTE,
+  INCOMPARE
+} StateType;
 
 /* lexeme of identifier or reserved word */
 char tokenString[MAXTOKENLEN + 1];
@@ -62,19 +71,25 @@ static void ungetNextChar(void) {
 static struct {
   char *str;
   TokenType tok;
-} reservedWords[MAXRESERVED] = {{"if", IF},
-                                //	{"then",THEN},
-                                {"else", ELSE},
-                                //	{"end",END},
-                                {"repeat", REPEAT},
-                                {"until", UNTIL},
-                                {"read", READ},
-                                {"write", WRITE},
-                                {"for", FOR},
-                                {"to", TO},
-                                {"downto", DOWNTO},
-                                {"do", DO},
-                                {"enddo", ENDDO}};
+} reservedWords[MAXRESERVED] = {
+    {"if", IF},
+    //	{"then",THEN},
+    {"else", ELSE},
+    //	{"end",END},
+    {"repeat", REPEAT},
+    {"until", UNTIL},
+    {"read", READ},
+    {"write", WRITE},
+    {"for", FOR},
+    {"to", TO},
+    {"downto", DOWNTO},
+    {"do", DO},
+    {"enddo", ENDDO},
+    {"reg", REG},
+    {"and", AND},
+    {"or", OR},
+    {"not", NOT},
+};
 
 /* lookup an identifier to see if it is a reserved word */
 /* uses linear search */
@@ -129,7 +144,7 @@ TokenType getToken(void) { /* index for storing into tokenString */
           break;
         case '=':
           currentToken = EQ;
-          break;        
+          break;
         case '-':
           currentToken = MINUS;
           break;
@@ -153,6 +168,18 @@ TokenType getToken(void) { /* index for storing into tokenString */
           break;
         case ';':
           currentToken = SEMI;
+          break;
+        case '|':
+          currentToken = UNION;
+          break;
+        case '&':
+          currentToken = CONCAT;
+          break;
+        case '#':
+          currentToken = CLOSURE;
+          break;
+        case '?':
+          currentToken = OPTION;
           break;
         default:
           currentToken = ERROR;
@@ -188,6 +215,7 @@ TokenType getToken(void) { /* index for storing into tokenString */
       }
       break;
     case INCOMPARE:
+    {
       state = DONE;
       ungetNextChar();
       ungetNextChar();
@@ -202,8 +230,7 @@ TokenType getToken(void) { /* index for storing into tokenString */
           ungetNextChar();
           currentToken = LT;
         }
-      }
-      else if (tmp == '>') {
+      } else if (tmp == '>') {
         if (c == '=')
           currentToken = GTE;
         else {
@@ -212,6 +239,7 @@ TokenType getToken(void) { /* index for storing into tokenString */
         }
       }
       break;
+    }
     case INNUM:
       if (!isdigit(c)) { /* backup in the input */
         ungetNextChar();

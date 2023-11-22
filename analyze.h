@@ -1,4 +1,6 @@
 #pragma once
 
-extern "C" void analyzeCode(const char *, const char*);
-extern "C" void reset();
+#include "globals.h"
+
+extern TreeNode* analyzeCode(const char *, const char*);
+extern const char* getTreeNodeInfo(TreeNode*);

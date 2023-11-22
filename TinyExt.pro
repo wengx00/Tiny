@@ -9,12 +9,12 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    analyze.c \
+    analyze.cpp \
     main.cpp \
     dialog.cpp \
-    parse.c \
-    scan.c \
-    util.c
+    parse.cpp \
+    scan.cpp \
+    util.cpp
 
 HEADERS += \
     analyze.h \

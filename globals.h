@@ -22,26 +22,28 @@
 #endif
 
 /* MAXRESERVED = the number of reserved words */
-#define MAXRESERVED 11
+#define MAXRESERVED 15
 
 typedef enum 
     /* book-keeping tokens */
    {ENDFILE,ERROR,
     /* reserved words */
-    IF,ELSE,REPEAT,UNTIL,READ,WRITE,FOR,TO,DOWNTO,DO,ENDDO,
+  IF,ELSE,REPEAT,UNTIL,READ,WRITE,FOR,TO,DOWNTO,DO,ENDDO,REG,/* 位运算符 */AND,OR,NOT,
     /* multicharacter tokens */
     ID,NUM,
     /* special symbols */
     ASSIGN,EQ,LT,PLUS,MINUS,TIMES,OVER,LPAREN,RPAREN,SEMI,
     /* 扩展的运算符 */
     PLUS_EQ,REMAIN,POWER,
+    /* 正则表达式操作符*/
+    CLOSURE, UNION, CONCAT, OPTION,
     /* 扩展的比较符*/
     GT,LTE,GTE,NEQ,
    } TokenType;
 
 
-int lineno;
-int linepos;
+extern int lineno;
+extern int linepos;
 extern FILE* source; /* source code text file */
 extern FILE* listing; /* listing output text file */
 extern FILE* code; /* code text file for TM simulator */
@@ -53,7 +55,7 @@ extern void reset();
 /**************************************************/
 
 typedef enum {StmtK,ExpK} NodeKind;
-typedef enum {IfK,RepeatK,AssignK,ReadK,WriteK,ForK,PlusEqK} StmtKind;
+typedef enum {IfK,RepeatK,AssignK,ReadK,WriteK,ForK,PlusEqK,RegK} StmtKind;
 typedef enum {OpK,ConstK,IdK} ExpKind;
 
 /* ExpType is used for type checking */
@@ -106,5 +108,7 @@ extern int TraceAnalyze;
 extern int TraceCode;
 
 /* Error = TRUE prevents further passes if an error occurs */
-extern int Error; 
+extern int Error;
+
+extern const char* getTreeNodeInfo(TreeNode*);
 #endif

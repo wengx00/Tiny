@@ -21,7 +21,13 @@ static TreeNode *for_assign(void);
 static TreeNode *for_stmt(void);
 static TreeNode *read_stmt(void);
 static TreeNode *write_stmt(void);
+static TreeNode *reg_stmt(void);
+static TreeNode *reg_union(void);
+static TreeNode *reg_concat(void);
+static TreeNode *reg_closure(void);
+static TreeNode *reg_factor(void);
 static TreeNode *exp(void);
+static TreeNode *bit_exp(void);
 static TreeNode *simple_exp(void);
 static TreeNode *term(void);
 static TreeNode *power(void);
@@ -87,6 +93,9 @@ TreeNode *statement(void) {
   case FOR:
     t = for_stmt();
     break;
+  case REG:
+    t = reg_stmt();
+    break;
   default:
     syntaxError("unexpected token -> ");
     printToken(token, tokenString);
@@ -133,14 +142,19 @@ TreeNode *assign_stmt(void) {
   if ((t != NULL) && (token == ID))
     t->attr.name = copyString(tokenString);
   match(ID);
-  if (t != NULL && token == PLUS_EQ) {
-    t->kind.stmt = PlusEqK;
-    match(PLUS_EQ);
-  }
-  else
+  if (t != NULL) {
+    if (token == PLUS_EQ) {
+      t->kind.stmt = PlusEqK;
+      match(PLUS_EQ);
+    } else {
+      match(ASSIGN);
+      if (token == REG)
+        t->child[0] = reg_stmt();
+       else
+        t->child[0] = exp();
+    }
+  } else
     match(ASSIGN);
-  if (t != NULL)
-    t->child[0] = exp();
   return t;
 }
 
@@ -196,7 +210,7 @@ TreeNode *for_assign(void) {
 }
 
 TreeNode *exp(void) {
-  TreeNode *t = simple_exp();
+  TreeNode *t = bit_exp();
   if ((token == LT) || (token == EQ) || (token == LTE) || (token == GTE) || (token == GT) || (token == NEQ)) {
     TreeNode *p = newExpNode(OpK);
     if (p != NULL) {
@@ -206,7 +220,24 @@ TreeNode *exp(void) {
     }
     match(token);
     if (t != NULL)
+      t->child[1] = bit_exp();
+  }
+  return t;
+}
+
+TreeNode *bit_exp(void) {
+  TreeNode *t = simple_exp();
+  while ((token == OR) || (token == AND)) {
+    TreeNode *p = newExpNode(OpK);
+    if (p != NULL) {
+      p->child[0] = t;
+      p->attr.op = token;
+      t = p;
+    }
+    match(token);
+    if (t != NULL) {
       t->child[1] = simple_exp();
+    }
   }
   return t;
 }
@@ -274,6 +305,87 @@ TreeNode *factor(void) {
   case LPAREN:
     match(LPAREN);
     t = exp();
+    match(RPAREN);
+    break;
+  default:
+    syntaxError("unexpected token -> ");
+    printToken(token, tokenString);
+    token = getToken();
+    break;
+  }
+  return t;
+}
+
+TreeNode *reg_stmt(void) {
+  TreeNode *t = newStmtNode(RegK);
+  match(REG);
+  if (t != NULL)
+    t->child[0] = reg_union();
+  return t;
+}
+
+TreeNode *reg_union(void) {
+  TreeNode *t = reg_concat();
+  while (t != NULL && token == UNION) {
+    TreeNode *p = newExpNode(OpK);
+    if (p != NULL) {
+      p->attr.op = token;
+      p->child[0] = t;
+      t = p;
+      match(token);
+      t->child[1] = reg_union();
+    }
+  }
+  return t;
+}
+
+TreeNode *reg_concat(void) {
+  TreeNode *t = reg_closure();
+  while (t != NULL && token == CONCAT) {
+    TreeNode *p = newExpNode(OpK);
+    if (p != NULL) {
+      p->child[0] = t;
+      p->attr.op = token;
+      t = p;
+      match(token);
+      t->child[1] = reg_closure();
+    }
+  }
+  return t;
+}
+
+TreeNode *reg_closure(void) {
+  TreeNode *t = reg_factor();
+  while (t != NULL && (token == CLOSURE || token == OPTION)) {
+    TreeNode *p = newExpNode(OpK);
+    if (p != NULL) {
+      p->child[0] = t;
+      p->attr.op = token;
+      t = p;
+      match(token);
+    }
+  }
+  return t;
+}
+
+TreeNode *reg_factor(void) {
+  TreeNode *t = NULL;
+  switch (token) {
+  case NUM:
+    t = newExpNode(ConstK);
+    if ((t != NULL) && (token == NUM))
+      t->attr.val = atoi(tokenString);
+    match(NUM);
+    break;
+  case ID:
+    t = newExpNode(IdK);
+    if ((t != NULL) && (token == ID))
+      t->attr.name = copyString(tokenString);
+    match(ID);
+    break;
+  case LPAREN:
+    match(LPAREN);
+    t = reg_union();
     match(RPAREN);
     break;
   default:

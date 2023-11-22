@@ -3,6 +3,8 @@
 #pragma once
 
 #include <QDialog>
+#include "analyze.h"
+#include <QTreeWidget>
 
 QT_BEGIN_NAMESPACE
 
@@ -27,5 +29,6 @@ private slots:
 
 private:
     Ui::Dialog *ui;
+    void traverseTree(TreeNode*, QTreeWidgetItem *);
 };
 //#endif // DIALOG_H

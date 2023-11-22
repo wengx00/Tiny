@@ -4,7 +4,6 @@
 #include "QFileDialog"
 #include "QMessageBox"
 #include "QTextStream"
-#include "analyze.h"
 #include "ui_dialog.h"
 
 Dialog::Dialog(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog) {
@@ -54,7 +53,8 @@ void Dialog::on_saveFile_clicked() {
 
 void Dialog::on_analyze_clicked() {
   QString sourcePath = QDir::tempPath() + "/TinySourceCode";
-  QString resPath = QDir::tempPath() + "/TinyResult";
+//  QString resPath = QDir::tempPath() + "/TinyResult";
+  QString errPath = QDir::tempPath() + "/TinyError";
   QFile source(sourcePath);
   if (!source.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
     QMessageBox::information(this, "提示", "缺失文件访问权限");
@@ -66,17 +66,35 @@ void Dialog::on_analyze_clicked() {
   out << ui->source->toPlainText().toUtf8();
   source.close();
 
-  analyzeCode(sourcePath.toStdString().c_str(), resPath.toStdString().c_str());
-
-  QFile result(resPath);
-  if (!result.open(QIODevice::ReadWrite)) {
+  TreeNode* node = analyzeCode(sourcePath.toStdString().c_str(), errPath.toStdString().c_str());
+  QFile error(errPath);
+  if (!error.open(QIODevice::ReadWrite)) {
     QMessageBox::information(this, "提示", "结果解析失败");
     return;
   }
-  ui->result->setText(result.readAll());
-  result.close();
+  QString parseErr = error.readAll().trimmed();
+  ui->error->setText(parseErr.size() == 0 ? "未发现错误" : parseErr);
+  error.close();
+
+  ui->result->clear();
+  traverseTree(node, 0);
   QMessageBox::information(this, "提示", "解析成功");
   // 删除临时文件
   QFile::remove(sourcePath);
-  QFile::remove(resPath);
+  QFile::remove(errPath);
+}
+
+void Dialog::traverseTree(TreeNode* tree, QTreeWidgetItem* p) {
+  if (tree == NULL) return;
+  QTreeWidgetItem *item;
+  while (tree) {
+    if (p == 0)
+        item = new QTreeWidgetItem(ui->result);
+    else
+        item = new QTreeWidgetItem(p);
+    item->setText(0, getTreeNodeInfo(tree));
+    for (int i = 0; i < MAXCHILDREN; ++i)
+        traverseTree(tree->child[i], item);
+    tree = tree->sibling;
+  }
 }
