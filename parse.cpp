@@ -143,16 +143,14 @@ TreeNode *assign_stmt(void) {
     if (token == PLUS_EQ) {
       t->kind.stmt = PlusEqK;
       match(token);
+      t->child[0] = exp();
     } else if (token == REG) {
-      t->kind.stmt = RegK;
       match(token);
+      t->child[0] = reg_union();
     } else {
       match(ASSIGN);
-    }
-    if (t->kind.stmt == RegK)
-      t->child[0] = reg_union();
-    else
       t->child[0] = exp();
+    }
   }
   return t;
 }
