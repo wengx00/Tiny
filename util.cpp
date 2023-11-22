@@ -70,6 +70,14 @@ char *printToken(TokenType token, const char *tokenString) {
     ss << ")";
     fprintf(listing, ")\n");
     break;
+  case LBACKET:
+    ss << "[";
+    fprintf(listing, "[\n");
+    break;
+  case RBACKET:
+    ss << "]";
+    fprintf(listing, "]\n");
+    break;
   case SEMI:
     ss << ";";
     fprintf(listing, ";\n");

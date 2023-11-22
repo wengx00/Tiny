@@ -28,11 +28,12 @@ typedef enum
     /* book-keeping tokens */
    {ENDFILE,ERROR,
     /* reserved words */
-  IF,ELSE,REPEAT,UNTIL,READ,WRITE,FOR,TO,DOWNTO,DO,ENDDO,/* 位运算符 */AND,OR,NOT,
+    IF,ELSE,REPEAT,UNTIL,READ,WRITE,FOR,TO,DOWNTO,DO,ENDDO,/* 位运算符 */AND,OR,NOT,
     /* multicharacter tokens */
     ID,NUM,
     /* special symbols */
     ASSIGN,REG,EQ,LT,PLUS,MINUS,TIMES,OVER,LPAREN,RPAREN,SEMI,
+    LBACKET,RBACKET,
     /* 扩展的运算符 */
     PLUS_EQ,REMAIN,POWER,
     /* 正则表达式操作符*/

@@ -53,7 +53,7 @@ TreeNode *stmt_sequence(void) {
   TreeNode *t = statement();
   TreeNode *p = t;
   while ((token != ENDFILE) && (token != ELSE) && (token != UNTIL) &&
-         (token != ENDDO)) {
+         (token != ENDDO) && (token != RBACKET) ) {
     TreeNode *q;
     match(SEMI);
     q = statement();
@@ -111,12 +111,24 @@ TreeNode *if_stmt(void) {
   if (t != NULL)
     t->child[0] = exp();
   match(RPAREN);
-  if (t != NULL)
-    t->child[1] = stmt_sequence();
+  if (t != NULL) {
+    if (token == LBACKET) {
+      match(LBACKET);
+      t->child[1] = stmt_sequence();
+      match(RBACKET);
+    } else
+      t->child[1] = statement();
+  }
   if (token == ELSE) {
     match(ELSE);
-    if (t != NULL)
-      t->child[2] = stmt_sequence();
+    if (t != NULL) {
+      if (token == LBACKET) {
+        match(LBACKET);
+        t->child[2] = stmt_sequence();
+        match(RBACKET);
+      } else
+        t->child[2] = statement();
+    }
   }
   return t;
 }

@@ -73,9 +73,7 @@ static struct {
   TokenType tok;
 } reservedWords[MAXRESERVED] = {
     {"if", IF},
-    //	{"then",THEN},
     {"else", ELSE},
-    //	{"end",END},
     {"repeat", REPEAT},
     {"until", UNTIL},
     {"read", READ},
@@ -164,6 +162,12 @@ TokenType getToken(void) { /* index for storing into tokenString */
           break;
         case ')':
           currentToken = RPAREN;
+          break;
+        case '[':
+          currentToken = LBACKET;
+          break;
+        case ']':
+          currentToken = RBACKET;
           break;
         case ';':
           currentToken = SEMI;
