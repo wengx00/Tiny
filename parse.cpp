@@ -21,7 +21,6 @@ static TreeNode *for_assign(void);
 static TreeNode *for_stmt(void);
 static TreeNode *read_stmt(void);
 static TreeNode *write_stmt(void);
-static TreeNode *reg_stmt(void);
 static TreeNode *reg_union(void);
 static TreeNode *reg_concat(void);
 static TreeNode *reg_closure(void);
@@ -30,6 +29,7 @@ static TreeNode *exp(void);
 static TreeNode *bit_exp(void);
 static TreeNode *simple_exp(void);
 static TreeNode *term(void);
+static TreeNode *not_term(void);
 static TreeNode *power(void);
 static TreeNode *factor(void);
 
@@ -93,9 +93,6 @@ TreeNode *statement(void) {
   case FOR:
     t = for_stmt();
     break;
-  case REG:
-    t = reg_stmt();
-    break;
   default:
     syntaxError("unexpected token -> ");
     printToken(token, tokenString);
@@ -145,16 +142,18 @@ TreeNode *assign_stmt(void) {
   if (t != NULL) {
     if (token == PLUS_EQ) {
       t->kind.stmt = PlusEqK;
-      match(PLUS_EQ);
+      match(token);
+    } else if (token == REG) {
+      t->kind.stmt = RegK;
+      match(token);
     } else {
       match(ASSIGN);
-      if (token == REG)
-        t->child[0] = reg_stmt();
-       else
-        t->child[0] = exp();
     }
-  } else
-    match(ASSIGN);
+    if (t->kind.stmt == RegK)
+      t->child[0] = reg_union();
+    else
+      t->child[0] = exp();
+  }
   return t;
 }
 
@@ -258,7 +257,7 @@ TreeNode *simple_exp(void) {
 }
 
 TreeNode *term(void) {
-  TreeNode *t = power();
+  TreeNode *t = not_term();
   while ((token == TIMES) || (token == OVER) || (token == REMAIN)) {
     TreeNode *p = newExpNode(OpK);
     if (p != NULL) {
@@ -266,8 +265,25 @@ TreeNode *term(void) {
       p->attr.op = token;
       t = p;
       match(token);
-      p->child[1] = power();
+      p->child[1] = not_term();
     }
+  }
+  return t;
+}
+
+TreeNode *not_term(void) {
+  TreeNode *t = NULL;
+  if (token == NOT) {
+    while (token == NOT) {
+      t = newExpNode(OpK);
+      if (t != NULL) {
+        t->attr.op = token;
+        match(token);
+        t->child[0] = power();
+      }
+    }
+  } else {
+    t = power();
   }
   return t;
 }
@@ -316,14 +332,6 @@ TreeNode *factor(void) {
   return t;
 }
 
-TreeNode *reg_stmt(void) {
-  TreeNode *t = newStmtNode(RegK);
-  match(REG);
-  if (t != NULL)
-    t->child[0] = reg_union();
-  return t;
-}
-
 TreeNode *reg_union(void) {
   TreeNode *t = reg_concat();
   while (t != NULL && token == UNION) {
@@ -333,7 +341,7 @@ TreeNode *reg_union(void) {
       p->child[0] = t;
       t = p;
       match(token);
-      t->child[1] = reg_union();
+      t->child[1] = reg_concat();
     }
   }
   return t;

@@ -120,6 +120,19 @@ char *printToken(TokenType token, const char *tokenString) {
     ss << "?";
     fprintf(listing, "?\n");
     break;
+    /* 位运算 */
+  case AND:
+    ss << "and";
+    fprintf(listing, "and\n");
+    break;
+  case OR:
+    ss << "or";
+    fprintf(listing, "or\n");
+    break;
+  case NOT:
+    ss << "not";
+    fprintf(listing, "not\n");
+    break;
 
   case ENDFILE:
     ss << "EOF";

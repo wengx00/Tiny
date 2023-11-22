@@ -15,7 +15,7 @@ Dialog::~Dialog() { delete ui; }
 void Dialog::on_chooseFile_clicked() {
   // 获取文件名
   QString fileName{
-      QFileDialog::getOpenFileName(this, "打开源文件", ".", "源文件(*.tny)")};
+      QFileDialog::getOpenFileName(this, "打开源文件", ".", "源文件(*.tny);;文本文件(*.txt, *)")};
   // 构造文件对象
   QFile file{fileName};
 
@@ -35,7 +35,8 @@ void Dialog::on_chooseFile_clicked() {
 }
 
 void Dialog::on_saveFile_clicked() {
-  QString savePath = QFileDialog::getSaveFileName(this);
+  QString tempPath = QDir::homePath();
+  QString savePath = QFileDialog::getSaveFileName(this, tr("SaveSourceCode"), tempPath, "TINY(*.tny);;TEXT(*.txt, *)");
   if (savePath.isEmpty())
     return;
   QFile file(savePath);

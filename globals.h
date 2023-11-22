@@ -22,17 +22,17 @@
 #endif
 
 /* MAXRESERVED = the number of reserved words */
-#define MAXRESERVED 15
+#define MAXRESERVED 14
 
 typedef enum 
     /* book-keeping tokens */
    {ENDFILE,ERROR,
     /* reserved words */
-  IF,ELSE,REPEAT,UNTIL,READ,WRITE,FOR,TO,DOWNTO,DO,ENDDO,REG,/* 位运算符 */AND,OR,NOT,
+  IF,ELSE,REPEAT,UNTIL,READ,WRITE,FOR,TO,DOWNTO,DO,ENDDO,/* 位运算符 */AND,OR,NOT,
     /* multicharacter tokens */
     ID,NUM,
     /* special symbols */
-    ASSIGN,EQ,LT,PLUS,MINUS,TIMES,OVER,LPAREN,RPAREN,SEMI,
+    ASSIGN,REG,EQ,LT,PLUS,MINUS,TIMES,OVER,LPAREN,RPAREN,SEMI,
     /* 扩展的运算符 */
     PLUS_EQ,REMAIN,POWER,
     /* 正则表达式操作符*/

@@ -85,7 +85,6 @@ static struct {
     {"downto", DOWNTO},
     {"do", DO},
     {"enddo", ENDDO},
-    {"reg", REG},
     {"and", AND},
     {"or", OR},
     {"not", NOT},
@@ -199,6 +198,17 @@ TokenType getToken(void) { /* index for storing into tokenString */
       state = DONE;
       if (c == '=')
         currentToken = ASSIGN;
+      else if (c == ':') {
+        // ::= RegExp
+        if (getNextChar() == '=')
+          currentToken = REG;
+        else {
+          ungetNextChar();
+          save = FALSE;
+          currentToken = REG;
+        }
+        break;
+      }
       else { /* backup in the input */
         ungetNextChar();
         save = FALSE;
