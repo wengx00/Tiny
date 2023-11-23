@@ -220,22 +220,6 @@ TreeNode *for_assign(void) {
 
 TreeNode *exp(void) {
   TreeNode *t = bit_exp();
-  if ((token == LT) || (token == EQ) || (token == LTE) || (token == GTE) || (token == GT) || (token == NEQ)) {
-    TreeNode *p = newExpNode(OpK);
-    if (p != NULL) {
-      p->child[0] = t;
-      p->attr.op = token;
-      t = p;
-    }
-    match(token);
-    if (t != NULL)
-      t->child[1] = bit_exp();
-  }
-  return t;
-}
-
-TreeNode *bit_exp(void) {
-  TreeNode *t = simple_exp();
   while ((token == OR) || (token == AND)) {
     TreeNode *p = newExpNode(OpK);
     if (p != NULL) {
@@ -245,8 +229,24 @@ TreeNode *bit_exp(void) {
     }
     match(token);
     if (t != NULL) {
-      t->child[1] = simple_exp();
+      t->child[1] = bit_exp();
     }
+  }
+  return t;
+}
+
+TreeNode *bit_exp(void) {
+  TreeNode *t = simple_exp();
+  if ((token == LT) || (token == EQ) || (token == LTE) || (token == GTE) || (token == GT) || (token == NEQ)) {
+    TreeNode *p = newExpNode(OpK);
+    if (p != NULL) {
+      p->child[0] = t;
+      p->attr.op = token;
+      t = p;
+    }
+    match(token);
+    if (t != NULL)
+      t->child[1] = simple_exp();
   }
   return t;
 }
